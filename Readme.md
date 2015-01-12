@@ -18,6 +18,8 @@ Built in resovlers:
 
 
 ```
+        var nojector = require('nojector').nojector;
+        
         var conf = nojector({
             //custom resolvers
             resolvers: {
@@ -27,6 +29,7 @@ Built in resovlers:
                     obj[param] = ctx.args[pos];
                     var p = promise();
                     setTimeout(function () {
+                        //using mpromise, it has a funny resolve.
                         p.resolve(null,obj);
                     }, 100);
                     return p;
