@@ -1,8 +1,32 @@
-var invoker = require('../lib/nojector')(),
+var nojector = require('../lib/nojector'), invoker = nojector(),
     should = require('should'),
+    inherits = require('util').inherits,
+    promise = require('../lib/when').promise,
     assert = require('assert'), slice = Function.call.bind(Array.prototype.slice), when = require('../lib/when').when;
+
+function IdArray() {
+    var nu = Array.apply(null, arguments);
+    nu.__proto__ = IdArray.prototype;
+    return nu;
+}
+
+IdArray.prototype = {
+    __proto__: Array.prototype,
+    id: function (id) {
+        for (var i = 0, l = this.length; i < l; i++) {
+            if (this[i]._id == id) {
+                return this[i];
+            }
+        }
+
+    }
+}
+
+
 var obj = {
     property: 1,
+
+
     stuff: [
         {a: 1},
         {b: 2},
@@ -18,7 +42,12 @@ var obj = {
     ],
     func: function (str) {
         return {
-            abc: str
+            abc: str,
+            def: function (s, s2) {
+                var ret = {}
+                ret[str] = s2;
+                return ret;
+            }
         }
     },
     nullvalue: null,
@@ -29,12 +58,89 @@ var obj = {
     deep: {
         fail: function onFailDeep() {
             throw new Error("hello");
+        },
+        g: function (query$abc) {
+            return query$abc;
         }
-    }
+    },
+    arrayWithId: IdArray.apply(null,
+        'abc'.split('').map(function (v) {
+            return {
+                _id: v
+            }
+        }))
 
 }
 
 describe('inject', function () {
+    it('should be trivial to create a bean resolver', function (done) {
+        var conf = nojector({
+            //custom resolvers
+            resolvers: {
+                bean: function (ctx, settings, pos, param) {
+                    // invoker.invoke(obj, 'func/def/a', {}, null, 'a', 'b')
+                    return this.invoke.apply(this, [obj, slice(arguments, 3), ctx, null].concat(ctx.args));
+                }
+            }
+        });
+        //look up the bean resolver then go to deep/g;
+        var a = function (bean$deep$g) {
+            return bean$deep$g;
+        }
+        conf.resolve(a, null, {query: {abc: 123}}, 'a', 'b').then(function (val) {
+            val.should.eql(123);
+            done();
+        });
+    })
+    it('should be configurable', function (done) {
+        var conf = nojector({
+            //custom resolvers
+            resolvers: {
+                hello: function (ctx, settings, pos, param) {
+                    return 'hello ' + param;
+                }
+            }
+        });
+//method you want to inject
+        var a = function (hello$world) {
+            return hello$world;
+        }
+        conf.resolve(a).then(function (val) {
+            val.should.eql('hello world');
+            done();
+        });
+
+    });
+    it('should work with async resolvers', function (done) {
+        var conf = nojector({
+            //custom resolvers
+            resolvers: {
+                async: function (ctx, settings, pos, param) {
+                    var obj = {};
+                    obj[param] = ctx.args[pos];
+                    var p = promise();
+                    setTimeout(function () {
+                        p.resolve(null, obj);
+                    }, 100);
+                    return p;
+                }
+            }
+        });
+        //method you want to inject
+        var a = function (async$user) {
+            return async$user;
+        }
+        conf.resolve(a, {}, null, 2).then(function (val) {
+            val.should.have.property('user', 2);
+            done();
+        });
+    })
+    it('should invoke a nested functions', function (done) {
+        invoker.invoke(obj, 'func/def/a', {}, null, 'a', 'b').then(function (ret) {
+            ret.should.eql('b');
+            done();
+        });
+    });
     it('should invoke a nested function', function (done) {
         invoker.invoke(obj, 'stuff/2/c/f').then(function (ret) {
             ret.should.eql(1);
@@ -76,6 +182,14 @@ describe('inject', function () {
         invoker.invoke(obj, 'array/0').then(function (v) {
             v.should.eql(1)
             done();
+        })
+    });
+    it('should allow for id array arrayWithId', function (done) {
+        invoker.invoke(obj, 'arrayWithId/b').then(function (v) {
+            v.should.have.property('_id', 'b');
+            done();
+        }, function (e) {
+            done(e);
         })
     });
     it('should return array by index and property', function (done) {

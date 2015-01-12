@@ -2,7 +2,8 @@
 A small realtively simple way to do parameter injection in node. Mostly for
 web applications.  It looks at the parameter names, and tries to resolve them
 with a resolver.  Really take a look at (mers)[http://github.com/jspears/mers#develop] for
-a better idea of why and how to use it.
+a better idea of why and how to use it.  The unit tests might give some ideas also.
+
 
 Built in resovlers:
 * query - query string values.
@@ -17,24 +18,29 @@ Built in resovlers:
 
 
 ```
-var nojector = require('nojector').nojector({
-    //custom resolvers
-    resolvers:{
-        hello:function(ctx, settings, pos, param){
-            return 'hello '+param;
+        var conf = nojector({
+            //custom resolvers
+            resolvers: {
+                async: function (ctx, settings, pos, param) {
+                    var obj = {};
+                    //pos is the positional argument.
+                    obj[param] = ctx.args[pos];
+                    var p = promise();
+                    setTimeout(function () {
+                        p.resolve(null,obj);
+                    }, 100);
+                    return p;
+                }
+            }
+        });
+        //method you want to inject
+        var a = function (async$user) {
+            return async$user;
         }
-    }
-});
-//method you want to inject
-var a = function(stuff$hello){
- return stuff$hello;
-}
-nojector.resolve(a).then(function(val){
-    console.log(val);
-}, function(){
-    //error handler;
-}
-
+        conf.resolve(a, {}, null, 2).then(function (val) {
+        //    val.should.have.property('user', 2);
+            done();
+        });
 ```
 
 ###Express context
