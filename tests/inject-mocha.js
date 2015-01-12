@@ -1,4 +1,6 @@
-var invoker = require('../lib/nojector')(), assert = require('assert'), slice = Function.call.bind(Array.prototype.slice), when = require('../lib/when').when;
+var invoker = require('../lib/nojector')(),
+    should = require('should'),
+    assert = require('assert'), slice = Function.call.bind(Array.prototype.slice), when = require('../lib/when').when;
 var obj = {
     property: 1,
     stuff: [
@@ -31,27 +33,58 @@ var obj = {
     }
 
 }
-var c = 0, s = 0;
 
-function test(obj, path, value, description, asserter) {
-    asserter = asserter || function (description, value, err, v) {
-        assert.equal(value, v, description);
-        assert.ok(err == null, "error is null check");
-    }
-    c++;
-    var callback = function onTestCallback(err, v) {
-        this.invoked = true;
-        asserter.apply(this, [description, value, err, v]);
-        console.log(c, "success", description);
-    }
-    try {
-        var p = invoker.invoke(obj, path, {}, callback);
-    } catch (e) {
-        console.log(c, 'failed', description, e.message)
-    }
-    return p;
-}
 describe('inject', function () {
+    it('should invoke a nested function', function (done) {
+        invoker.invoke(obj, 'stuff/2/c/f').then(function (ret) {
+            ret.should.eql(1);
+            done();
+        });
+    });
+    it('should invoke a nested function with args', function (done) {
+        invoker.invoke(obj, 'func/abc', {}, null, 1).then(function (ret) {
+            ret.should.eql(1);
+            done();
+        });
+    });
+    it('should invoke callback on execption', function (done) {
+        invoker.invoke(obj, 'deep/fail').then(null, function (e) {
+            e.should.have.property('message', 'hello');
+            done();
+        })
+    });
+    it('should return null', function (done) {
+        invoker.invoke(obj, 'nullvalue').then(function (v) {
+            should.not.exist(v);
+            done();
+        })
+    });
+    it('should return nested property', function (done) {
+        invoker.invoke(obj, 'nested/property').then(function (v) {
+            v.should.eql(1)
+            done();
+        })
+    });
+    it('should return nested property obj', function (done) {
+        invoker.invoke(obj, 'nested/property').then(function (v) {
+            v.should.eql(1)
+            done();
+        })
+    });
+
+    it('should return array by index', function (done) {
+        invoker.invoke(obj, 'array/0').then(function (v) {
+            v.should.eql(1)
+            done();
+        })
+    });
+    it('should return array by index and property', function (done) {
+        invoker.invoke(obj, 'stuff/1/b').then(function (v) {
+            v.should.eql(2)
+            done();
+        })
+    });
+
     it('should extract a single parameter', function () {
         var ret = invoker.extractArgNames(function (query$name) {
         });
@@ -64,27 +97,6 @@ describe('inject', function () {
     });
 
 
-    it('should resolve function parameter names', function () {
-        var args = invoker.injectArgs(function (a, b) {
-        }, {b: 1, a: 1}, [{a: 2}], {b: 2});
-        assert.strictEqual(args[0], 1, "injected arg 1");
-        assert.strictEqual(args[1], 2, "injected arg 1");
-    });
-    it('should resolve function parameter names and bind', function () {
-        var scope = {
-            me: function (b, a) {
-                this.count++;
-                return [b, a];
-            }, count: 0
-        };
-        var args = invoker.injectBind(scope.me, scope, {a: 1, d: 1})({c: 2}, {b: 2});
-
-
-        assert.strictEqual(args[0], 2, "injected arg 1");
-        assert.strictEqual(args[1], 1, "injected arg 1");
-        //test for correct scope binding.
-        assert.strictEqual(scope.count, 1, "injected arg 1");
-    });
     it('should resolve arguments', function (done) {
         // this.timeout(400000);
         var scope = {

@@ -1,7 +1,8 @@
 #Nojector
 A small realtively simple way to do parameter injection in node. Mostly for
 web applications.  It looks at the parameter names, and tries to resolve them
-with a resolver.
+with a resolver.  Really take a look at (mers)[http://github.com/jspears/mers#develop] for
+a better idea of why and how to use it.
 
 Built in resovlers:
 * query - query string values.
@@ -53,5 +54,12 @@ nojector.resolve(a.stuff, req).then(function(response){
   //do something with response;
   next();
 }, next);
+
+```
+
+##Navigation
+
+```
+
 
 ```
