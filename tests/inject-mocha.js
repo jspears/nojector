@@ -1,4 +1,4 @@
-var invoker = require('../lib/nojector'), assert = require('assert'), slice = Function.call.bind(Array.prototype.slice), when = require('../lib/when').when;
+var invoker = require('../lib/nojector')(), assert = require('assert'), slice = Function.call.bind(Array.prototype.slice), when = require('../lib/when').when;
 var obj = {
     property: 1,
     stuff: [
