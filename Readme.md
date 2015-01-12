@@ -66,9 +66,82 @@ nojector.resolve(a.stuff, req).then(function(response){
 
 ```
 
-##Navigation
+##Invoke
+Nojector also allows you to navigate object graphs, executing
+functions along the way.  The basics are.
+
+Its arguments are
+* obj - The object to decend.
+* path (optional)  - a slash delimited string or an array of strings.
+* ctx (optional) - A context object
+* advice (optional)  - a function that is used for controlling flow
+    it will recieve
+        * str -> the current array
+        * obj -> the curent object
+        * next -> a callback.
+        * bv -> the next value to be evalated
+
+*args... whatever else args to pass into the function.
+
+
+```javascript
+
+    var obj = {
+        array:[1,2,3,4,5]
+    }
+
+    invoker.invoke(obj, 'array/0').then(function (v) {
+            v.should.eql(1)
+            done();
+        })
 
 ```
 
+It can go more deeply
+
+```javascript
+var obj = {
+
+    stuff: [
+        {a: 1},
+        {b: 2},
+        {
+            c: {
+                f: function () {
+                    return 1;
+                }
+            }
+        },
+        {_id: 'abc', c: 1}
+    ]
+}
+
+ invoker.invoke(obj, 'stuff/2/c/f').then(function (ret) {
+        ret.should.eql(1);
+  });
+
+```
+
+It will also inject arguments
+
+```javascript
+
+var obj = {
+    func: function (str) {
+        return {
+            abc: str,
+            def: function (s, s2) {
+                var ret = {}
+                ret[str] = s2;
+                return ret;
+            }
+        }
+    }
+}
+
+invoker.invoke(obj, 'func/def/a', {}, null, 'a', 'b').then(function (ret) {
+            ret.should.eql('b');
+            done();
+ });
 
 ```

@@ -17,8 +17,7 @@ IdArray.prototype = {
             if (this[i]._id == id) {
                 return this[i];
             }
-        }
-
+        }s
     }
 }
 
@@ -111,6 +110,13 @@ describe('inject', function () {
         });
 
     });
+    it('should resovlve modules', function (done) {
+        invoker.resolve(function (require$util) {
+            require$util.should.be.eql(require('util'));
+            done();
+        });
+    })
+
     it('should work with async resolvers', function (done) {
         var conf = nojector({
             //custom resolvers
