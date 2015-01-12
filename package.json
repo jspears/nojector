@@ -1,6 +1,6 @@
 {
   "name": "nojector",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Node Parameter Injection",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,8 @@
   "keywords": [
     "Dependency Injection",
     "node",
-    "mers","express"
+    "mers",
+    "express"
   ],
   "author": "Justin Spears",
   "license": "BSD",
