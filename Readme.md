@@ -1,7 +1,7 @@
 #Nojector
 A small realtively simple way to do parameter injection in node. Mostly for
 web applications.  It looks at the parameter names, and tries to resolve them
-with a resolver.  Really take a look at (mers)[http://github.com/jspears/mers#develop] for
+with a resolver.  Really take a look at [mers](http://github.com/jspears/mers#develop) for
 a better idea of why and how to use it.  The unit tests might give some ideas also.
 
 
