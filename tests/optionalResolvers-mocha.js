@@ -1,7 +1,7 @@
 var nojector = require('../lib/nojector'),
     should = require('should'),
     promise = require('../lib/when').promise,
-    optional = require('../lib/optionalResolvers'), tu = require('./test-util'), wd = tu.wrapDone;
+    optional = require('../lib/optionalResolvers');
 
 describe('optionalResolvers', function () {
     var inject = nojector({

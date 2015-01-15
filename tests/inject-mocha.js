@@ -2,7 +2,6 @@ var nojector = require('../lib/nojector'), invoker = nojector(),
     should = require('should'),
     inherits = require('util').inherits,
     promise = require('../lib/when').promise,
-    tu = require('./test-util'),
     assert = require('assert'), slice = Function.call.bind(Array.prototype.slice), when = require('../lib/when').when;
 
 function IdArray() {
@@ -74,7 +73,7 @@ var obj = {
 }
 
 describe('inject', function () {
-    it('should be trivial to create a bean resolver', function (done) {
+    it('should be trivial to create a bean resolver', function () {
         var conf = nojector({
             //custom resolvers
             resolvers: {
@@ -88,12 +87,12 @@ describe('inject', function () {
         var a = function (bean$deep$g) {
             return bean$deep$g;
         }
-        conf.resolve(a, null, {query: {abc: 123}}, 'a', 'b').then(function (val) {
+        return conf.resolve(a, null, {query: {abc: 123}}, 'a', 'b').then(function (val) {
             val.should.eql(123);
-            done();
+
         });
     })
-    it('should be configurable', function (done) {
+    it('should be configurable', function () {
         var conf = nojector({
             //custom resolvers
             resolvers: {
@@ -106,13 +105,13 @@ describe('inject', function () {
         var a = function (hello$world) {
             return hello$world;
         }
-        conf.resolve(a).then(function (val) {
+        return conf.resolve(a).then(function (val) {
             val.should.eql('hello world');
-            done();
+
         });
 
     });
-    it('should work with async resolvers', function (done) {
+    it('should work with async resolvers', function () {
         var conf = nojector({
             //custom resolvers
             resolvers: {
@@ -131,72 +130,63 @@ describe('inject', function () {
         var a = function (async$user) {
             return async$user;
         }
-        conf.resolve(a, {}, null, 2).then(function (val) {
+        return conf.resolve(a, {}, null, 2).then(function (val) {
             val.should.have.property('user', 2);
-            done();
+
         });
     })
-    it('should invoke a nested functions', function (done) {
-        invoker.invoke(obj, 'func/def/a', {}, null, 'a', 'b').then(function (ret) {
+    it('should invoke a nested functions', function () {
+        return invoker.invoke(obj, 'func/def/a', {}, null, 'a', 'b').then(function (ret) {
             ret.should.eql('b');
-            done();
         });
     });
-    it('should invoke a nested function', function (done) {
-        invoker.invoke(obj, 'stuff/2/c/f').then(function (ret) {
+    it('should invoke a nested function', function () {
+        return invoker.invoke(obj, 'stuff/2/c/f').then(function (ret) {
             ret.should.eql(1);
-            done();
         });
     });
-    it('should invoke a nested function with args', function (done) {
-        invoker.invoke(obj, 'func/abc', {}, null, 1).then(function (ret) {
+    it('should invoke a nested function with args', function () {
+        return invoker.invoke(obj, 'func/abc', {}, null, 1).then(function (ret) {
             ret.should.eql(1);
-            done();
+
         });
     });
-    it('should invoke callback on execption', function (done) {
-        invoker.invoke(obj, 'deep/fail').then(null, function (e) {
+    it('should invoke callback on execption', function () {
+        return invoker.invoke(obj, 'deep/fail').then(null, function (e) {
             e.should.have.property('message', 'hello');
-            done();
+
         })
     });
-    it('should return null', function (done) {
-        invoker.invoke(obj, 'nullvalue').then(function (v) {
+    it('should return null', function () {
+        return invoker.invoke(obj, 'nullvalue').then(function (v) {
             should.not.exist(v);
-            done();
         })
     });
-    it('should return nested property', function (done) {
-        invoker.invoke(obj, 'nested/property').then(function (v) {
+    it('should return nested property', function () {
+        return invoker.invoke(obj, 'nested/property').then(function (v) {
             v.should.eql(1)
-            done();
         })
     });
-    it('should return nested property obj', function (done) {
-        invoker.invoke(obj, 'nested/property').then(function (v) {
+    it('should return nested property obj', function () {
+        return invoker.invoke(obj, 'nested/property').then(function (v) {
             v.should.eql(1)
-            done();
         })
     });
 
-    it('should return array by index', function (done) {
-        invoker.invoke(obj, 'array/0').then(function (v) {
+    it('should return array by index', function () {
+        return invoker.invoke(obj, 'array/0').then(function (v) {
             v.should.eql(1)
-            done();
+
         })
     });
-    it('should allow for id array arrayWithId', function (done) {
-        invoker.invoke(obj, 'arrayWithId/b').then(function (v) {
+    it('should allow for id array arrayWithId', function () {
+        return invoker.invoke(obj, 'arrayWithId/b').then(function (v) {
             v.should.have.property('_id', 'b');
-            done();
-        }, function (e) {
-            done(e);
         })
     });
-    it('should return array by index and property', function (done) {
-        invoker.invoke(obj, 'stuff/1/b').then(function (v) {
+    it('should return array by index and property', function () {
+        return invoker.invoke(obj, 'stuff/1/b').then(function (v) {
             v.should.eql(2)
-            done();
         })
     });
 
@@ -212,14 +202,14 @@ describe('inject', function () {
     });
 
 
-    it('should resolve arguments', function (done) {
+    it('should resolve arguments', function () {
         // this.timeout(400000);
         var scope = {
             query: {a: 1},
             session: {a: 2, b: 1},
             body: {a: 3, du: 3, b: 2}
         }
-        invoker.resolve(function aFineQuery$here(query$a, session$a, body$du, none, query$none, any$b, b, require$$$tests$support$junk) {
+        return invoker.resolve(function aFineQuery$here(query$a, session$a, body$du, none, query$none, any$b, b, require$$$tests$support$junk) {
             return slice(arguments).concat(this);
         }, {junk: 1}, scope).then(function (args) {
             assert.strictEqual(args[0], 1, "resolved query$a");
@@ -230,19 +220,16 @@ describe('inject', function () {
             assert.strictEqual(args[5], void(0), "resolved any$b");
             //     assert.strictEqual(args[6], 2, "resolved any b");
             assert.strictEqual(args[8].junk, 1, "resolved module.junk ");
-            done();
-        }, function (e) {
-            done(new Error(e));
         });
     });
-    it('should inject args for non resolved patterns', function (done) {
+    it('should inject args for non resolved patterns', function () {
 
         var scope = {
             query: {a: 1},
             session: {a: 2, b: 1},
             body: {a: 4, du: 4, b: 2}
         }
-        invoker.resolve(function aFineQuery$here(query$a, a1, a2, body$a, a3) {
+        return invoker.resolve(function aFineQuery$here(query$a, a1, a2, body$a, a3) {
             return slice(arguments).concat(this);
         }, {junk: 1}, scope, 0, 2, 3).then(function (args) {
             assert.strictEqual(args[0], 1, "resolved query$a");
@@ -252,17 +239,16 @@ describe('inject', function () {
             assert.strictEqual(args[4], void(0), "resolved a3");
             //     assert.strictEqual(args[6], 2, "resolved any b");
             assert.strictEqual(args[5].junk, 1, "resolved module.junk ");
-            done();
         });
     })
-    it('should inject args for all non resolved patterns', function (done) {
+    it('should inject args for all non resolved patterns', function () {
 
-        invoker.resolve(function aFineQuery$here(a, b, c) {
+        return invoker.resolve(function aFineQuery$here(a, b, c) {
             return slice(arguments).concat(this);
-        }, {junk: 1}, {}, 0, 1, 2).then(tu.wrapDone(function (args) {
+        }, {junk: 1}, {}, 0, 1, 2).then(function (args) {
             assert.strictEqual(args[0], 0, "resolved query$a");
             assert.strictEqual(args[1], 1, "resolved args$a1");
             assert.strictEqual(args[2], 2, "resolved args$a2");
-        }, done));
+        });
     })
 });
