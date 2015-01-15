@@ -69,3 +69,44 @@ nojector.resolve(a.stuff, req).then(function(response){
 
 
 ```
+
+##Optional Resolvers
+To make this look like a true DI framework, there are a couple of optional resolvers.
+
+* Alias - Allows for an unqualified method, resolve to a qualified method.
+```
+   var inject = nojector({
+        resolvers: {
+            args: optional.anyAlias({
+                user: 'query$user',
+                bob: function (query$qa) {
+                    var p = promise();
+
+                    setTimeout(p.resolve.bind(p, null, query$qa), 100);
+
+                    return p;
+                },
+                aliased: 'user'
+            }),
+            bean: optional.bean({
+                stuff: function (bob) {
+                    return bob;
+                }
+            })
+        }
+    }), ctx = {
+        query: {
+            user: 'joe',
+            qa: 'stuff'
+        }
+    };
+    inject.resolve(function(user){
+    //should have 'joe' as the value.
+
+    });
+
+```
+
+* Bean - This resolver is basically a statically scoped resolver.
+
+

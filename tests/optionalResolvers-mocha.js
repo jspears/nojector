@@ -29,8 +29,10 @@ describe('optionalResolvers', function () {
             qa: 'stuff'
         }
     };
-    it('should resolve bean$stuff', function () {
-
+    it.only('should resolve bean$stuff', function () {
+        return inject.resolve(function(bean$stuff){
+           bean$stuff.should.be.eq('stuff')
+        });
     })
     it('should resolve an aliased arg', function () {
         return inject.resolve(function (user) {
