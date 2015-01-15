@@ -2,6 +2,7 @@ var nojector = require('../lib/nojector'), invoker = nojector(),
     should = require('should'),
     inherits = require('util').inherits,
     promise = require('../lib/when').promise,
+    tu = require('./test-util'),
     assert = require('assert'), slice = Function.call.bind(Array.prototype.slice), when = require('../lib/when').when;
 
 function IdArray() {
@@ -253,5 +254,15 @@ describe('inject', function () {
             assert.strictEqual(args[5].junk, 1, "resolved module.junk ");
             done();
         });
+    })
+    it('should inject args for all non resolved patterns', function (done) {
+
+        invoker.resolve(function aFineQuery$here(a, b, c) {
+            return slice(arguments).concat(this);
+        }, {junk: 1}, {}, 0, 1, 2).then(tu.wrapDone(function (args) {
+            assert.strictEqual(args[0], 0, "resolved query$a");
+            assert.strictEqual(args[1], 1, "resolved args$a1");
+            assert.strictEqual(args[2], 2, "resolved args$a2");
+        }, done));
     })
 });
