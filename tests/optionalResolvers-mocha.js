@@ -15,11 +15,15 @@ describe('optionalResolvers', function () {
 
                     return p;
                 },
-                aliased: 'user'
+                aliased: 'user',
+                other:'bean$other'
             }),
             bean: optional.bean({
                 stuff: function (bob) {
                     return bob;
+                },
+                other:function(bean$stuff, user){
+                    return bean$stuff + user;
                 }
             })
         }
@@ -29,11 +33,17 @@ describe('optionalResolvers', function () {
             qa: 'stuff'
         }
     };
-    it.only('should resolve bean$stuff', function () {
-        return inject.resolve(function(bean$stuff){
-           bean$stuff.should.be.eq('stuff')
-        });
-    })
+    it('should resolve bean$stuff with aliases', function () {
+        return inject.resolve(function (other) {
+            other.should.be.eql('stuffjoe')
+        }, {}, ctx);
+    });
+    it('should resolve bean$stuff', function () {
+        return inject.resolve(function (bean$stuff) {
+            bean$stuff.should.be.eql('stuff')
+        }, {}, ctx);
+    });
+
     it('should resolve an aliased arg', function () {
         return inject.resolve(function (user) {
             return user;
