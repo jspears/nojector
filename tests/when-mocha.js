@@ -104,42 +104,41 @@ describe('when functions', function () {
         })
         it('should reject the value when the value is an error', function (done) {
             var p1 = new Promise(), p2 = new Promise(), p3 = new Error();
-            util.when(p1, p2, p3).then(done, function (e) {
+            util.when(p1, p2, p3).then(function(e){
+                done(new Error('should have not been called'));
+            }, function (e) {
                 done();
             });
             resolve(p1, 1, 300);
             resolve(p2, 2, 100);
         })
-        it('should resolve when there are no promises', function (done) {
-            util.when().then(function () {
-                done()
-            });
+        it('should resolve when there are no promises', function () {
+            return util.when();
         });
-        it('should resolve when there are no promises in multiple args', function (done) {
-            util.when([], []).then(function () {
-                done()
-            });
+        it('should resolve when there are no promises []', function () {
+            return util.when([]);
+        });
+        it('should resolve when there are no promises in multiple args', function () {
+            return util.when([], []);
         })
-        it('should resolve when there are no promises and values', function (done) {
-            util.when([1, 2, 3]).then(function (args) {
+        it('should resolve when there are no promises and values', function () {
+            return util.when([1, 2, 3]).then(function (args) {
                 args.should.have.property(0, 1);
                 args.should.have.property(1, 2);
                 args.should.have.property(2, 3);
                 args.should.have.property('length', 3);
-                return null;
-            }).then(done);
+            });
         })
-        it('should resolve when there are no promises and values are functions', function (done) {
+        it('should resolve when there are no promises and values are functions', function () {
             var f1 = function () {
                 return 1;
             }, f2 = function () {
                 return 2;
             };
-            util.when(f1, f2).then(function (args) {
+            return util.when(f1, f2).then(function (args) {
                 args.should.have.property(0, f1);
                 args.should.have.property(1, f2);
                 args.should.have.property('length', 2);
-                done()
             });
         })
     })

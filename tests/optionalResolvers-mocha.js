@@ -16,13 +16,13 @@ describe('optionalResolvers', function () {
                     return p;
                 },
                 aliased: 'user',
-                other:'bean$other'
+                other: 'bean$other'
             }),
             bean: optional.bean({
                 stuff: function (bob) {
                     return bob;
                 },
-                other:function(bean$stuff, user){
+                other: function (bean$stuff, user) {
                     return bean$stuff + user;
                 }
             })
@@ -33,11 +33,13 @@ describe('optionalResolvers', function () {
             qa: 'stuff'
         }
     };
-    it('should resolve bean$stuff with aliases', function () {
+
+    it('should resolve alias other with aliases', function () {
         return inject.resolve(function (other) {
             other.should.be.eql('stuffjoe')
         }, {}, ctx);
     });
+
     it('should resolve bean$stuff', function () {
         return inject.resolve(function (bean$stuff) {
             bean$stuff.should.be.eql('stuff')
@@ -49,27 +51,28 @@ describe('optionalResolvers', function () {
             return user;
         }, {}, ctx).then(function (user) {
             user.should.be.eql('joe');
-        })
+        });
     });
 
     it('should resolve an aliased arg and others', function () {
         return inject.resolve(function (a, user) {
             user.should.be.eql('joe');
             a.should.be.eql(1);
-        }, {}, ctx, 1)
+        }, {}, ctx, 1);
     });
 
     it('should resolve an aliased arg and async value', function () {
         return inject.resolve(function (a, bob) {
             bob.should.be.eql('stuff');
             a.should.be.eql(1);
-        }, {}, ctx, 1)
+        }, {}, ctx, 1);
     });
+
     it('should handle aliased aliases', function () {
         return inject.resolve(function (aliased) {
             return aliased
         }, {}, ctx).then(function (arg) {
             arg.should.be.eql('joe');
-        })
-    })
-})
+        });
+    });
+});
