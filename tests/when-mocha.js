@@ -12,50 +12,49 @@ function resolveErr(promise, val, timeout) {
 }
 describe('when functions', function () {
     describe('when', function () {
-        it('should resolve a promise when all children have been resolved', function (done) {
+        it('should resolve a promise when all children have been resolved', function () {
 
             var p1 = new Promise(), p2 = new Promise(), p3 = new Promise();
-            util.when([p1, p2, p3]).then(function (ret) {
+            var p = util.when([p1, p2, p3]).then(function (ret) {
                 console.log('ret', ret);
                 ret.should.have.lengthOf(3);
-                done();
+
             });
             resolve(p1, 1, 300);
             resolve(p2, 2, 100);
             resolve(p3, 3, 200);
+            return p;
         });
-        it('should work with a resolved promise', function (done) {
+        it('should work with a resolved promise', function () {
 
             var p1 = new Promise(), p2 = new Promise(), p3 = new Promise();
             p2.resolve(null, 2);
-            util.when([p1, p2, p3]).then(function (ret) {
+            var w = util.when([p1, p2, p3]).then(function (ret) {
                 console.log('ret', ret);
                 ret.should.have.lengthOf(3);
-                done();
             });
             resolve(p1, 1, 300);
             resolve(p3, 3, 200);
+            return w;
         });
-        it('should work with all resolved promises', function (done) {
+        it('should work with all resolved promises', function () {
 
             var p1 = new Promise(), p2 = new Promise(), p3 = new Promise();
             p2.resolve(null, 2);
             p3.resolve(null, 3);
             p1.resolve(null, 1);
-            util.when([p1, p2, p3]).then(function (ret) {
+            return util.when([p1, p2, p3]).then(function (ret) {
                 console.log('ret', ret);
                 ret.should.have.lengthOf(3);
-                done();
             });
         });
-        it('should work with one resolved promise', function (done) {
+        it('should work with one resolved promise', function () {
 
             var p1 = new Promise();
             p1.resolve(null, 1);
-            util.when([p1]).then(function (ret) {
+            return util.when([p1]).then(function (ret) {
                 console.log('ret', ret);
                 ret.should.have.lengthOf(1);
-                done();
             });
         });
         it('should work with one resolved promise in error', function (done) {
@@ -90,17 +89,18 @@ describe('when functions', function () {
             resolveErr(p1, 1, 300);
             resolve(p2, 2, 100);
             resolve(p3, 3, 200);
+
         });
-        it('should resolve the value when it is not a promise', function (done) {
+        it('should resolve the value when it is not a promise', function () {
             var p1 = new Promise(), p2 = new Promise(), p3 = 3;
-            util.when(p1, p2, p3).then(function (values) {
+            var w = util.when(p1, p2, p3).then(function (values) {
                 values.should.have.property(0, 1);
                 values.should.have.property(1, 2);
                 values.should.have.property(2, 3);
-                done();
             });
             resolve(p1, 1, 300);
             resolve(p2, 2, 100);
+            return w;
         })
         it('should reject the value when the value is an error', function (done) {
             var p1 = new Promise(), p2 = new Promise(), p3 = new Error();
@@ -148,16 +148,14 @@ describe('when functions', function () {
             return a + 1;
         }
 
-        it('should resolve no args', function (done) {
-            util.chain().then(function (v) {
+        it('should resolve no args', function () {
+            return util.chain().then(function (v) {
                 should.not.exist(v)
-                done();
             });
         });
-        it('should resolve a list of functions', function (done) {
-            util.chain(1, add1, add1, add1).then(function (v) {
+        it('should resolve a list of functions', function () {
+            return util.chain(1, add1, add1, add1).then(function (v) {
                 ({v: v}).should.have.property('v', 4);
-                done();
             });
         });
 
@@ -173,11 +171,10 @@ describe('when functions', function () {
                 done();
             });
         });
-        it('should resolve a list of functions some and use a promise', function (done) {
-            util.promise(function (e, v) {
+        it('should resolve a list of functions some and use a promise', function () {
+            return util.promise(function (e, v) {
                 should.not.exist(e);
                 ({v: v}).should.have.property('v', 5);
-                done();
             }).chain(1, add1, function (v) {
                 var p = util.promise();
                 v += 2;
@@ -198,11 +195,10 @@ describe('when functions', function () {
 
             }, add1);
         });
-        it('should resolve a list of functions some and use a promise as last element', function (done) {
-            util.promise(function (e, v) {
+        it('should resolve a list of functions some and use a promise as last element', function () {
+            return util.promise(function (e, v) {
                 should.not.exist(e);
                 ({v: v}).should.have.property('v', 4);
-                done();
             }).chain(1, add1, function (v) {
                 var p = util.promise();
                 v += 2;
@@ -213,7 +209,7 @@ describe('when functions', function () {
         });
 
 
-        it('should resolve a chain of promises', function (done) {
+        it('should resolve a chain of promises', function () {
 
             var f = function (v) {
                 v = v || 0;
@@ -222,10 +218,9 @@ describe('when functions', function () {
                 setTimeout(p.resolve.bind(p, null, v), 100);
                 return p;
             }
-            util.promise(function (e, v) {
+            return util.promise(function (e, v) {
                 should.not.exist(e);
                 ({v: v}).should.have.property('v', 6);
-                done();
             }).chain(f, f, f);
         });
     });
