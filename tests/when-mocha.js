@@ -1,4 +1,4 @@
-var util = require('../lib/when'), Promise = require('mpromise'), should = require('should');
+var util = require('../lib/when'), Promise = require('mpromise'), should = require('should'), promise = util.promise;
 
 function resolve(promise, val, timeout) {
     setTimeout(function () {
@@ -11,6 +11,23 @@ function resolveErr(promise, val, timeout) {
     }, timeout);
 }
 describe('when functions', function () {
+    describe('next', function () {
+        it('should resolve turtles', function () {
+
+            function make(val) {
+                return function () {
+                    var p = promise();
+                    resolve(p, val, 100);
+                    return p;
+                }
+            }
+
+            var scope = {};
+            return promise().next(make(make(make(2))), scope, 1, 3).then(function (v) {
+                v.should.be.eql(2);
+            })
+        })
+    })
     describe('when', function () {
         it('should resolve a promise when all children have been resolved', function () {
 
@@ -104,7 +121,7 @@ describe('when functions', function () {
         })
         it('should reject the value when the value is an error', function (done) {
             var p1 = new Promise(), p2 = new Promise(), p3 = new Error();
-            util.when(p1, p2, p3).then(function(e){
+            util.when(p1, p2, p3).then(function (e) {
                 done(new Error('should have not been called'));
             }, function (e) {
                 done();

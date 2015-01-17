@@ -251,12 +251,25 @@ describe('inject', function () {
             assert.strictEqual(args[2], 2, "resolved args$a2");
         });
     })
-    it.only('should stringify async', function () {
+    it.skip('should stringify async', function () {
 
         return invoker.stringify({
             a: {
                 stuff: function (query$abc) {
                     return query$abc;
+                },
+                prom: function () {
+                    var p = promise();
+                    setTimeout(p.resolve.bind(p, null, {
+                        a: function (query$abc) {
+                            var a = {};
+                            a[query$abc] = 'd';
+                            return a;
+                        },
+                        b: 'b'
+
+                    }), 100);
+                    return p;
                 }
             }
         }, {
@@ -264,10 +277,10 @@ describe('inject', function () {
                 abc: 1
             }
         }).then(function (res) {
-            res = JSON.parse(res);
+         //   res = JSON.parse(res);
             res.should.have.property('a');
 
-            res.a.should.property('stuff', '1');
+            res.a.should.property('stuff', 1);
         });
 
     })
