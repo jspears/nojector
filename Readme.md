@@ -109,4 +109,66 @@ To make this look like a true DI framework, there are a couple of optional resol
 
 * Bean - This resolver is basically a statically scoped resolver.
 
+##Using with ExpressJS.
+Sometimes it might be useful to expose a model with resolution.
+You can doing something like, you can look in the samples dir for more info.
+
+```javascript
+//application specific modules.
+var beans = require('./beans'),
+    model = require('./model'),
+
+//Nojector includes
+    nojector = require('nojector'),
+    optional = nojector.optional,
+    inject = nojector.nojector({
+        resolvers: {
+            args: optional.anyAlias({}),
+            bean: optional.bean(beans)
+        }
+    }),
+    resolve = nojector.web(inject),
+    middleware = nojector.middleware,
+//Express
+    app = require('express')();
+
+app.use(require('body-parser').json());
+
+//Simple inline nojection resolution....  If you want complete control, but
+//would like some parameter injection.
+
+app.get('/', resolve(function getFunction(req, res, next, query$name) {
+
+    console.log(query$name);
+    next();
+}));
+
+app.use('/rest', middleware(nojector, model));
+
+...
+```
+### Middleware
+The above will work but you  may want to use the middleware with other things.
+
+```
+    var middleware = nojector.middleware;
+   var itemRouter = express.Router({mergeParams: true});
+
+   // you can nest routers by attaching them as middleware:
+   userRouter.use('/items', itemRouter);
+
+   userRouter.route('/')
+       .get(middleware(nojector, model, function(err, req, res, next, data){
+            req.model = data;
+            next();
+       }),
+
+
+       function(req,res,next){
+
+           //do something else here like render templates.
+       });
+       }
+
+```
 

@@ -12,21 +12,18 @@ function resolveErr(promise, val, timeout) {
 }
 describe('when functions', function () {
     describe('next', function () {
-        it('should resolve turtles', function () {
-
-            function make(val) {
-                return function () {
-                    var p = promise();
-                    resolve(p, val, 100);
-                    return p;
-                }
-            }
-
+        function make(val) {
+            var p = promise();
+            resolve(p, val, 100);
+            return p;
+        }
+        it('should resolve a promise', function () {
             var scope = {};
             return promise().next(make(make(make(2))), scope, 1, 3).then(function (v) {
                 v.should.be.eql(2);
             })
         })
+
     })
     describe('when', function () {
         it('should resolve a promise when all children have been resolved', function () {
