@@ -5,6 +5,8 @@ with a resolver.  Really take a look at (mers)[http://github.com/jspears/mers#de
 a better idea of why and how to use it.  The unit tests might give some ideas also.
 
 
+##Resolvers
+
 Built in resovlers:
 * query - query string values.
 * session - session values.
@@ -12,6 +14,40 @@ Built in resovlers:
 * params - Parameters.
 * args - additional arguments.
 * require - requires a module.
+
+Optional resolvers:
+* bean - allows for external context lookups.
+* alias - allows for parameters to be aliased to other parameters.
+
+##Custom Resolvers
+Resolvers can be added to a nojector instance by passing an object with resolvers property, and a function mapped to
+the namespace of the resolver.
+
+```
+var nojector = require('nojector');
+
+nojector.nojector({
+  resolvers:{
+    custom:function(ctx, settings, pos, param){
+
+    }
+
+  }
+});
+
+
+```
+
+The function can return a promise or a value and has the following arguments.
+
+* ctx - The context object.
+* settings - The nojection settings.
+* pos - The position of the argument
+* param - the parsed name of the param, ie if custom$name, than it would be name.
+
+
+
+
 
 ##Usage
 ###Basic
@@ -43,31 +79,32 @@ Built in resovlers:
         });
 ```
 
-###Express context
+#Nested Objects
+So nested graphs can be navigated with nojection, and injected.
 
 ```
-var a = {
+var obj = {
+  something:function(query$name){
+    var ret = {
 
-   stuff:function(session$user){
-//        do something with session$user;
+    }
 
-   }
+    ret[query$name] = {
+        hello:'world'
+    }
+    return ret;
+  }
 
+},
+ctx = {
+    query:{
+        name:'bob'
+    }
 }
-app.get('/stuff', function(req,res,next){
 
-nojector.resolve(a.stuff, req).then(function(response){
-  //do something with response;
-  next();
-}, next);
-
-```
-
-##Navigation
-
-```
-
-
+nojector.inject(obj, 'obj/something/bob', null, ctx).then(function(ret){
+ ret.should.have.property('hello', 'world');
+});
 ```
 
 ##Optional Resolvers
@@ -87,11 +124,6 @@ To make this look like a true DI framework, there are a couple of optional resol
                     return p;
                 },
                 aliased: 'user'
-            }),
-            bean: optional.bean({
-                stuff: function (bob) {
-                    return bob;
-                }
             })
         }
     }), ctx = {
@@ -108,7 +140,31 @@ To make this look like a true DI framework, there are a couple of optional resol
 ```
 
 * Bean - This resolver is basically a statically scoped resolver.
+```
+   var inject = nojector({
+        resolvers: {
+            bean: optional.bean({
+                service: function (query$qa) {
+                    var p = promise();
 
+                    setTimeout(p.resolve.bind(p, null, query$qa), 100);
+
+                    return p;
+                }
+            })
+        }
+    }), ctx = {
+        query: {
+            user: 'joe',
+            qa: 'stuff'
+        }
+    };
+    inject.resolve(function(bean$service){
+    //should have 'joe' as the value.
+
+    });
+
+```
 ##Using with ExpressJS.
 Sometimes it might be useful to expose a model with resolution.
 You can doing something like, you can look in the samples dir for more info.
@@ -134,15 +190,15 @@ var beans = require('./beans'),
 
 app.use(require('body-parser').json());
 
-//Simple inline nojection resolution....  If you want complete control, but
+//Simple inline nojection resolution. If you want complete control, but
 //would like some parameter injection.
-
 app.get('/', resolve(function getFunction(req, res, next, query$name) {
 
     console.log(query$name);
     next();
 }));
 
+//will resolve any url under /rest to the corresponding path in model.
 app.use('/rest', middleware(nojector, model));
 
 ...
@@ -157,7 +213,7 @@ The above will work but you  may want to use the middleware with other things.
    // you can nest routers by attaching them as middleware:
    userRouter.use('/items', itemRouter);
 
-   userRouter.route('/')
+   itemRouter.route('/')
        .get(middleware(nojector, model, function(err, req, res, next, data){
             req.model = data;
             next();
