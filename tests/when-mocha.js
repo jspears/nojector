@@ -17,11 +17,60 @@ describe('when functions', function () {
             resolve(p, val, 100);
             return p;
         }
+
         it('should resolve a promise', function () {
             var scope = {};
             return promise().next(make(make(make(2))), scope, 1, 3).then(function (v) {
                 v.should.be.eql(2);
             })
+        });
+        it('should continue resolving', function () {
+            var p = promise();
+            setTimeout(function () {
+                p.resolve(null, make(10));
+            }, 100);
+            return p.next(function (ret) {
+                return ret;
+            }).then(function (res) {
+                res.should.be.eql(10);
+            });
+
+        });
+        it('should continue resolving with value', function () {
+            var p = promise();
+
+            p.resolve(null, 10);
+
+            return p.next(function (ret) {
+                return ret;
+            }).then(function (res) {
+                res.should.be.eql(10);
+            });
+
+        })
+        it('should continue resolving with value returned promise', function () {
+            var p = promise();
+
+            p.resolve(null, 10);
+
+            return p.next(function (ret) {
+                return make(ret);
+            }).then(function (res) {
+                res.should.be.eql(10);
+            });
+
+        })
+        it('should continue resolving with value returned promise and with promise', function () {
+            var p = promise();
+
+            p.resolve(null, make(10));
+
+            return p.next(function (ret) {
+                return make(ret);
+            }).then(function (res) {
+                res.should.be.eql(10);
+            });
+
         })
 
     })

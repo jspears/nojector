@@ -251,39 +251,67 @@ describe('inject', function () {
             assert.strictEqual(args[2], 2, "resolved args$a2");
         });
     })
-    it.only('should stringify async', function () {
+    describe.skip('stringify', function () {
 
-        return invoker.stringify({
-            a: {
-                stuff: function (query$abc) {
-                    return query$abc;
+        it('should stringify resolved promises', function () {
+            return invoker.stringify({
+                a: {
+                    stuff: function (query$abc) {
+                        return query$abc;
+                    }
+                    ,
+
+                    prom: function () {
+                        var p = promise();
+                        setTimeout(p.resolve.bind(p, null, {
+                            a: function (query$abc) {
+                                var a = {};
+                                a[query$abc] = 'd';
+                                return a;
+                            },
+                            b: 'b'
+
+                        }), 100);
+                        return p;
+                    }
                 }
-                /*,
+            }, {
+                query: {
+                    abc: 'def'
+                }
+            }).then(function (res) {
+                //   res = JSON.parse(res);
+                res.should.have.property('a');
 
-                prom: function () {
-                    var p = promise();
-                    setTimeout(p.resolve.bind(p, null, {
-                        a: function (query$abc) {
-                            var a = {};
-                            a[query$abc] = 'd';
-                            return a;
-                        },
-                        b: 'b'
+                res.a.should.have.property('stuff', 'def');
 
-                    }), 100);
-                    return p;
-                }*/
-            }
-        }, {
-            query: {
-                abc: 'def'
-            }
-        }).then(function (res) {
-            //   res = JSON.parse(res);
-            res.should.have.property('a');
+                res.a.should.have.property('prom');
+            });
+        })
+        it('should stringify', function () {
 
-            res.a.should.property('stuff', 'def');
+            return invoker.stringify({
+                a: {
+                    stuff: function (query$abc) {
+                        return query$abc;
+                    },
+                    prom:false
+                }
+            }, {
+                query: {
+                    abc: 'def'
+                }
+            }).then(function (res) {
+                //   res = JSON.parse(res);
+                res.should.have.property('a');
+
+                res.a.should.have.property('stuff', 'def');
+
+                //res.a.should.have.property('prom', false);
+            });
+
+
         });
+    });
 
-    })
 });
