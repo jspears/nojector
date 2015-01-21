@@ -23,7 +23,8 @@ Optional resolvers:
 Resolvers can be added to a nojector instance by passing an object with resolvers property, and a function mapped to
 the namespace of the resolver.
 
-```
+```javascript
+
 var nojector = require('nojector');
 
 nojector.nojector({
@@ -50,11 +51,11 @@ The function can return a promise or a value and has the following arguments.
 
 
 ##Usage
-###Basic
 
 
-```
-        var conf = nojector({
+```javascript
+
+  var conf = nojector({
             //custom resolvers
             resolvers: {
                 async: function (ctx, settings, pos, param) {
@@ -82,7 +83,8 @@ The function can return a promise or a value and has the following arguments.
 #Nested Objects
 So nested graphs can be navigated with nojection, and injected.
 
-```
+```javascript
+
 var obj = {
   something:function(query$name){
     var ret = {
@@ -111,7 +113,8 @@ nojector.inject(obj, 'obj/something/bob', null, ctx).then(function(ret){
 To make this look like a true DI framework, there are a couple of optional resolvers.
 
 * Alias - Allows for an unqualified method, resolve to a qualified method.
-```
+
+```javascript
    var inject = nojector({
         resolvers: {
             args: optional.anyAlias({
@@ -140,7 +143,8 @@ To make this look like a true DI framework, there are a couple of optional resol
 ```
 
 * Bean - This resolver is basically a statically scoped resolver.
-```
+
+```javascript
    var inject = nojector({
         resolvers: {
             bean: optional.bean({
@@ -165,6 +169,7 @@ To make this look like a true DI framework, there are a couple of optional resol
     });
 
 ```
+
 ##Using with ExpressJS.
 Sometimes it might be useful to expose a model with resolution.
 You can doing something like, you can look in the samples dir for more info.
@@ -177,14 +182,12 @@ var beans = require('./beans'),
 //Nojector includes
     nojector = require('nojector'),
     optional = nojector.optional,
-    inject = nojector.nojector({
+    resolve = nojector.web({
         resolvers: {
             args: optional.anyAlias({}),
             bean: optional.bean(beans)
         }
     }),
-    resolve = nojector.web(inject),
-    middleware = nojector.middleware,
 //Express
     app = require('express')();
 
@@ -192,39 +195,32 @@ app.use(require('body-parser').json());
 
 //Simple inline nojection resolution. If you want complete control, but
 //would like some parameter injection.
-app.get('/', resolve(function getFunction(req, res, next, query$name) {
+app.get('/', resolve(function (req, res, next, query$name) {
 
     console.log(query$name);
     next();
 }));
 
+```
+
+
+### Middleware
+The above will work but you  may want to use the middleware with other things.
+```javascript
+var model = require('./model');
 //will resolve any url under /rest to the corresponding path in model.
 app.use('/rest', middleware(nojector, model));
 
-...
 ```
-### Middleware
-The above will work but you  may want to use the middleware with other things.
 
-```
-    var middleware = nojector.middleware;
-   var itemRouter = express.Router({mergeParams: true});
-
-   // you can nest routers by attaching them as middleware:
-   userRouter.use('/items', itemRouter);
-
-   itemRouter.route('/')
-       .get(middleware(nojector, model, function(err, req, res, next, data){
-            req.model = data;
-            next();
-       }),
-
-
-       function(req,res,next){
-
-           //do something else here like render templates.
-       });
-       }
+An optional third argument let's you capture the last return and do something with it
+```javascript
+var model = require('./model');
+//will resolve any url under /rest to the corresponding path in model.
+app.get('/rest', middleware(nojector, model, function(err,req,res,next, data){
+  res.model = data;
+  next();
+}, //other handlers here);
 
 ```
 
