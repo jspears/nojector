@@ -251,7 +251,7 @@ describe('inject', function () {
             assert.strictEqual(args[2], 2, "resolved args$a2");
         });
     })
-    describe('stringify', function () {
+    describe.only('stringify', function () {
 
         it('should stringify resolved promises', function () {
             return invoker.stringify({
