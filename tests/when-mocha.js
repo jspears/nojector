@@ -10,7 +10,7 @@ function resolveErr(promise, val, timeout) {
         promise.resolve(val);
     }, timeout);
 }
-describe('when functions', function () {
+describe('when', function () {
     describe('next', function () {
         function make(val) {
             var p = promise();

@@ -1,6 +1,6 @@
 var superagent = require('superagent'), when = require('../lib/when');
 
-describe('testing express modules', function () {
+describe('web', function () {
 
 
     var agent;

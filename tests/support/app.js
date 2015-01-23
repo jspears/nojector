@@ -14,6 +14,7 @@ var beans = {
 }
 //application specific modules.
 var model = require('../../sample/model'),
+    when = require('../../lib/when'),
 //Nojector includes
     nojector = require('../../'),
 
