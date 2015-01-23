@@ -1,6 +1,5 @@
 var nojector = require('../lib/nojector'), invoker = nojector(),
     should = require('should'),
-    inherits = require('util').inherits,
     promise = require('../lib/when').promise,
     assert = require('assert'), slice = Function.call.bind(Array.prototype.slice), when = require('../lib/when').when;
 
@@ -87,7 +86,7 @@ describe('inject', function () {
         var a = function (bean$deep$g) {
             return bean$deep$g;
         }
-        return conf.resolve(a, null, {query: {abc: 123}}, 'a', 'b').then(function (val) {
+        return conf.resolve(a, null, {req:{query: {abc: 123}}}, 'a', 'b').then(function (val) {
             val.should.eql(123);
 
         });
@@ -205,9 +204,11 @@ describe('inject', function () {
     it('should resolve arguments', function () {
         // this.timeout(400000);
         var scope = {
-            query: {a: 1},
-            session: {a: 2, b: 1},
-            body: {a: 3, du: 3, b: 2}
+            req: {
+                query: {a: 1},
+                session: {a: 2, b: 1},
+                body: {a: 3, du: 3, b: 2}
+            }
         }
         return invoker.resolve(function aFineQuery$here(query$a, session$a, body$du, none, query$none, any$b, b, require$$$tests$support$junk) {
             return slice(arguments).concat(this);
@@ -225,9 +226,11 @@ describe('inject', function () {
     it('should inject args for non resolved patterns', function () {
 
         var scope = {
-            query: {a: 1},
-            session: {a: 2, b: 1},
-            body: {a: 4, du: 4, b: 2}
+            req: {
+                query: {a: 1},
+                session: {a: 2, b: 1},
+                body: {a: 4, du: 4, b: 2}
+            }
         }
         return invoker.resolve(function aFineQuery$here(query$a, a1, a2, body$a, a3) {
             return slice(arguments).concat(this);
@@ -274,8 +277,10 @@ describe('inject', function () {
                     }
                 }
             }, {
-                query: {
-                    abc: 'def'
+                req: {
+                    query: {
+                        abc: 'def'
+                    }
                 }
             }).then(function (res) {
                 //   res = JSON.parse(res);
@@ -296,8 +301,10 @@ describe('inject', function () {
                     prom: false
                 }
             }, {
-                query: {
-                    abc: 'def'
+                req: {
+                    query: {
+                        abc: 'def'
+                    }
                 }
             }).then(function (res) {
                 //   res = JSON.parse(res);

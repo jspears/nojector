@@ -28,9 +28,11 @@ describe('optionalResolvers', function () {
             })
         }
     }), ctx = {
-        query: {
-            user: 'joe',
-            qa: 'stuff'
+        req: {
+            query: {
+                user: 'joe',
+                qa: 'stuff'
+            }
         }
     };
 

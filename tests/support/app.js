@@ -1,8 +1,21 @@
+/**
+ * See what an express app might look like
+ *
+ * @type {{service: {asyncService: Function}}}
+ */
+var beans = {
+    service: {
+        asyncService: function (query$name) {
+            var p = when.promise();
+            setTimeout(p.resolve.bind(p, null, query$name), 100);
+            return p;
+        }
+    }
+}
 //application specific modules.
-var beans = require('./beans'),
-    model = require('./model'),
+var model = require('../../sample/model'),
 //Nojector includes
-    nojector = require('nojector'),
+    nojector = require('../../'),
 
     optional = nojector.optional,
     inject = nojector.nojector({
@@ -21,10 +34,9 @@ app.use(require('body-parser').json());
 app.get('/', resolve(function getFunction(req, res, next, query$name) {
 
     res.send({
-        name:query$name
+        name: query$name
     });
 }));
 
 app.use('/rest', middleware(inject, model));
-
-module.exports = app;
+module.exports = app
