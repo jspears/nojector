@@ -218,8 +218,9 @@ describe('inject', function () {
             assert.strictEqual(args[2], 3, "resolved body$du");
             assert.strictEqual(args[3], void(0), "resolved none");
             assert.strictEqual(args[4], void(0), "resolved query$none");
-            assert.strictEqual(args[5], void(0), "resolved any$b");
-            //     assert.strictEqual(args[6], 2, "resolved any b");
+            assert.strictEqual(args[5], 2, "resolved b");
+            assert.strictEqual(args[6], 2, "resolved any$b");
+            assert.strictEqual(args[7].junk, 1, "resolved module.junk ");
             assert.strictEqual(args[8].junk, 1, "resolved module.junk ");
         });
     });

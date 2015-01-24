@@ -6,18 +6,6 @@ var nojector = require('../lib/nojector'),
 describe('optionalResolvers', function () {
     var inject = nojector({
         resolvers: {
-            args: optional.anyAlias({
-                user: 'query$user',
-                bob: function (query$qa) {
-                    var p = promise();
-
-                    setTimeout(p.resolve.bind(p, null, query$qa), 100);
-
-                    return p;
-                },
-                aliased: 'user',
-                other: 'bean$other'
-            }),
             bean: optional.bean({
                 stuff: function (bob) {
                     return bob;
@@ -35,14 +23,25 @@ describe('optionalResolvers', function () {
             }
         }
     };
+    inject.alias({
+        user: 'query$user',
+        bob: function (query$qa) {
+            var p = promise();
 
+            setTimeout(p.resolve.bind(p, null, query$qa), 100);
+
+            return p;
+        },
+        aliased: 'user',
+        other: 'bean$other'
+    });
     it('should resolve alias other with aliases', function () {
         return inject.resolve(function (other) {
             other.should.be.eql('stuffjoe')
         }, {}, ctx);
     });
 
-    it('should resolve bean$stuff', function () {
+    it.only('should resolve bean$stuff', function () {
         return inject.resolve(function (bean$stuff) {
             bean$stuff.should.be.eql('stuff')
         }, {}, ctx);
