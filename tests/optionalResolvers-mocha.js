@@ -35,13 +35,18 @@ describe('optionalResolvers', function () {
         aliased: 'user',
         other: 'bean$other'
     });
+    it('should resolve query$user', function(){
+        return inject.resolve(function(query$user){
+            query$user.should.be.eql('joe');
+        }, {}, ctx);
+    });
     it('should resolve alias other with aliases', function () {
         return inject.resolve(function (other) {
             other.should.be.eql('stuffjoe')
         }, {}, ctx);
     });
 
-    it.only('should resolve bean$stuff', function () {
+    it('should resolve bean$stuff', function () {
         return inject.resolve(function (bean$stuff) {
             bean$stuff.should.be.eql('stuff')
         }, {}, ctx);

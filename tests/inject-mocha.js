@@ -72,25 +72,7 @@ var obj = {
 }
 
 describe('inject', function () {
-    it('should be trivial to create a bean resolver', function () {
-        var conf = nojector({
-            //custom resolvers
-            resolvers: {
-                bean: function (ctx, settings, pos, param) {
-                    // invoker.invoke(obj, 'func/def/a', {}, null, 'a', 'b')
-                    return this.invoke.apply(this, [obj, slice(arguments, 3), ctx, null].concat(ctx.args));
-                }
-            }
-        });
-        //look up the bean resolver then go to deep/g;
-        var a = function (bean$deep$g) {
-            return bean$deep$g;
-        }
-        return conf.resolve(a, null, {req:{query: {abc: 123}}}, 'a', 'b').then(function (val) {
-            val.should.eql(123);
 
-        });
-    })
     it('should be configurable', function () {
         var conf = nojector({
             //custom resolvers
@@ -110,7 +92,7 @@ describe('inject', function () {
         });
 
     });
-    it('should work with async resolvers', function () {
+    it.only('should work with async resolvers', function () {
         var conf = nojector({
             //custom resolvers
             resolvers: {
