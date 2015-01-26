@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jspears/nojector.svg)](https://travis-ci.org/jspears/nojector)
+
 #Nojector
 A small realtively simple way to do parameter injection in node. Mostly for
 web applications.  It looks at the parameter names, and tries to resolve them
