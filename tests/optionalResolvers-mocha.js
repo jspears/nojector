@@ -1,33 +1,28 @@
 var nojector = require('../lib/nojector'),
     should = require('should'),
-    promise = require('../lib/when').promise,
-    optional = require('../lib/optionalResolvers');
+    promise = require('../lib/when').promise;
 
 describe('optionalResolvers', function () {
-    var inject = nojector({
-        resolvers: {
-            args: optional.anyAlias({
-                user: 'query$user',
-                bob: function (query$qa) {
-                    var p = promise();
+    var inject = nojector().alias({
+        user: 'query$user',
+        bob: function (query$qa) {
+            var p = promise();
 
-                    setTimeout(p.resolve.bind(p, null, query$qa), 100);
+            setTimeout(p.resolve.bind(p, null, query$qa), 100);
 
-                    return p;
-                },
-                aliased: 'user',
-                other: 'bean$other'
-            }),
-            bean: optional.bean({
-                stuff: function (bob) {
-                    return bob;
-                },
-                other: function (bean$stuff, user) {
-                    return bean$stuff + user;
-                }
-            })
-        }
-    }), ctx = {
+            return p;
+        },
+        aliased: 'user',
+        other: 'bean$other'
+    }).alias('bean', {
+            stuff: function (bob) {
+                return bob;
+            },
+            other: function (bean$stuff, user) {
+                return bean$stuff + user;
+            }
+    }),
+        ctx = {
         req: {
             query: {
                 user: 'joe',

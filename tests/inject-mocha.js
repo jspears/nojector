@@ -73,20 +73,12 @@ var obj = {
 
 describe('inject', function () {
     it('should be trivial to create a bean resolver', function () {
-        var conf = nojector({
-            //custom resolvers
-            resolvers: {
-                bean: function (ctx, settings, pos, param) {
-                    // invoker.invoke(obj, 'func/def/a', {}, null, 'a', 'b')
-                    return this.invoke.apply(this, [obj, slice(arguments, 3), ctx, null].concat(ctx.args));
-                }
-            }
-        });
+        var conf = nojector().alias('bean', obj);
         //look up the bean resolver then go to deep/g;
         var a = function (bean$deep$g) {
             return bean$deep$g;
         }
-        return conf.resolve(a, null, {req:{query: {abc: 123}}}, 'a', 'b').then(function (val) {
+        return conf.resolve(a, null, {req: {query: {abc: 123}}}, 'a', 'b').then(function (val) {
             val.should.eql(123);
 
         });
@@ -95,7 +87,7 @@ describe('inject', function () {
         var conf = nojector({
             //custom resolvers
             resolvers: {
-                hello: function (ctx, settings, pos, param) {
+                hello: function (ctx, pos, param) {
                     return 'hello ' + param;
                 }
             }
@@ -114,7 +106,7 @@ describe('inject', function () {
         var conf = nojector({
             //custom resolvers
             resolvers: {
-                async: function (ctx, settings, pos, param) {
+                async: function (ctx,  pos, param) {
                     var obj = {};
                     obj[param] = ctx.args[pos];
                     var p = promise();
@@ -199,7 +191,20 @@ describe('inject', function () {
         });
         ret.should.have.property(0, 'query$name');
     });
-
+    it('should resolve query arguments', function () {
+        // this.timeout(400000);
+        var scope = {
+            req: {
+                query: {a: 1}
+            }
+        }
+        return invoker.resolve(function aFineQuery$here(query$a) {
+            return slice(arguments).concat(this);
+        }, {junk: 1}, scope).then(function (args) {
+            assert.strictEqual(args[0], 1, "resolved query$a");
+            assert.strictEqual(args[1].junk, 1, "resolved module.junk ");
+        });
+    });
 
     it('should resolve arguments', function () {
         // this.timeout(400000);
@@ -216,9 +221,10 @@ describe('inject', function () {
             assert.strictEqual(args[0], 1, "resolved query$a");
             assert.strictEqual(args[1], 2, "resolved session$a");
             assert.strictEqual(args[2], 3, "resolved body$du");
-            assert.strictEqual(args[3], void(0), "resolved none");
+            assert.strictEqual(args[3], null, "resolved none");
             assert.strictEqual(args[4], void(0), "resolved query$none");
-            assert.strictEqual(args[5], void(0), "resolved any$b");
+            assert.strictEqual(args[5], 2, "resolved any$b");
+         //   assert.strictEqual(args[6], 2, "resolved b");
             //     assert.strictEqual(args[6], 2, "resolved any b");
             assert.strictEqual(args[8].junk, 1, "resolved module.junk ");
         });

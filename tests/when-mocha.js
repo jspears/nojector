@@ -79,9 +79,7 @@ describe('when', function () {
 
             var p1 = new Promise(), p2 = new Promise(), p3 = new Promise();
             var p = util.when([p1, p2, p3]).then(function (ret) {
-                console.log('ret', ret);
                 ret.should.have.lengthOf(3);
-
             });
             resolve(p1, 1, 300);
             resolve(p2, 2, 100);
@@ -93,7 +91,6 @@ describe('when', function () {
             var p1 = new Promise(), p2 = new Promise(), p3 = new Promise();
             p2.resolve(null, 2);
             var w = util.when([p1, p2, p3]).then(function (ret) {
-                console.log('ret', ret);
                 ret.should.have.lengthOf(3);
             });
             resolve(p1, 1, 300);
@@ -107,7 +104,6 @@ describe('when', function () {
             p3.resolve(null, 3);
             p1.resolve(null, 1);
             return util.when([p1, p2, p3]).then(function (ret) {
-                console.log('ret', ret);
                 ret.should.have.lengthOf(3);
             });
         });
@@ -116,7 +112,6 @@ describe('when', function () {
             var p1 = new Promise();
             p1.resolve(null, 1);
             return util.when([p1]).then(function (ret) {
-                console.log('ret', ret);
                 ret.should.have.lengthOf(1);
             });
         });

@@ -4,13 +4,7 @@ var beans = require('./beans'),
 //Nojector includes
     nojector = require('nojector'),
 
-    optional = nojector.optional,
-    inject = nojector.nojector({
-        resolvers: {
-            args: optional.anyAlias({}),
-            bean: optional.bean(beans)
-        }
-    }),
+    inject = nojector.nojector().alias('bean', beans),
     resolve = nojector.web(inject),
     middleware = nojector.middleware,
 //Express

@@ -18,13 +18,7 @@ var model = require('../../sample/model'),
 //Nojector includes
     nojector = require('../../'),
 
-    optional = nojector.optional,
-    inject = nojector.nojector({
-        resolvers: {
-            args: optional.anyAlias({}),
-            bean: optional.bean(beans)
-        }
-    }),
+    inject = nojector.nojector().alias(beans),
     resolve = nojector.web(inject),
     middleware = nojector.middleware,
 //Express

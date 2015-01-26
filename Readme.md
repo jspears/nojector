@@ -16,10 +16,7 @@ Built in resovlers:
 * params - Parameters.
 * args - additional arguments.
 * require - requires a module.
-
-Optional resolvers:
-* bean - allows for external context lookups.
-* alias - allows for parameters to be aliased to other parameters.
+* headers - http headers.
 
 ##Custom Resolvers
 Resolvers can be added to a nojector instance by passing an object with resolvers property, and a function mapped to
@@ -31,10 +28,11 @@ var nojector = require('nojector');
 
 nojector.nojector({
   resolvers:{
-    custom:function(ctx, settings, pos, param){
+    custom:function(ctx, pos, param, params){
+        //return a value or a promise.   If in the search chain than
+        //return undefined if a value is not resolved.
 
     }
-
   }
 });
 
@@ -44,10 +42,9 @@ nojector.nojector({
 The function can return a promise or a value and has the following arguments.
 
 * ctx - The context object.
-* settings - The nojection settings.
 * pos - The position of the argument
 * param - the parsed name of the param, ie if custom$name, than it would be name.
-
+* params - the rest of the parsed params.
 
 
 
@@ -60,7 +57,7 @@ The function can return a promise or a value and has the following arguments.
   var conf = nojector({
             //custom resolvers
             resolvers: {
-                async: function (ctx, settings, pos, param) {
+                async: function (ctx,  pos, param) {
                     var obj = {};
                     //pos is the positional argument.
                     obj[param] = ctx.args[pos];
@@ -146,15 +143,18 @@ nojector.stringify(doc, ctx).then(JSON.stringify).then(function(res){
 ```
 
 
-##Optional Resolvers
-To make this look like a true DI framework, there are a couple of optional resolvers.
+##Alias Resolvers
+To make this look like a true DI framework, you can "alias" basically
+anything to anything
 
-* Alias - Allows for an unqualified method, resolve to a qualified method.
+Alias can take an object (the keys will be the resolver, the value will be the value)
+or a string and a function,
+or a string and a string;
+
+It returns the injector.
 
 ```javascript
-   var inject = nojector({
-        resolvers: {
-            args: optional.anyAlias({
+   var inject = nojector().alias({
                 user: 'query$user',
                 bob: function (query$qa) {
                     var p = promise();
@@ -162,37 +162,9 @@ To make this look like a true DI framework, there are a couple of optional resol
                     setTimeout(p.resolve.bind(p, null, query$qa), 100);
 
                     return p;
-                },
-                aliased: 'user'
-            })
-        }
-    }), ctx = {
-        query: {
-            user: 'joe',
-            qa: 'stuff'
-        }
-    };
-    inject.resolve(function(user){
-    //should have 'joe' as the value.
-
-    });
-
-```
-
-* Bean - This resolver is basically a statically scoped resolver.
-
-```javascript
-   var inject = nojector({
-        resolvers: {
-            bean: optional.bean({
-                service: function (query$qa) {
-                    var p = promise();
-
-                    setTimeout(p.resolve.bind(p, null, query$qa), 100);
-
-                    return p;
                 }
-            })
+
+            }).alias('bean', {...}).alias('aliasedUser', 'user');
         }
     }), ctx = {
         query: {
@@ -200,9 +172,9 @@ To make this look like a true DI framework, there are a couple of optional resol
             qa: 'stuff'
         }
     };
-    inject.resolve(function(bean$service){
+    inject.resolve(function(aliasedUser, bob){
     //should have 'joe' as the value.
-
+    // bob should have stuff.
     });
 
 ```
@@ -217,14 +189,7 @@ var beans = require('./beans'),
     model = require('./model'),
 
 //Nojector includes
-    nojector = require('nojector'),
-    optional = nojector.optional,
-    resolve = nojector.web({
-        resolvers: {
-            args: optional.anyAlias({}),
-            bean: optional.bean(beans)
-        }
-    }),
+    nojector = require('nojector').alias('bean', beans),
 //Express
     app = require('express')();
 
