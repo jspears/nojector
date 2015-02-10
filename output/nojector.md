@@ -6,19 +6,6 @@
 
 * * *
 
-### extractResolvers(fn, args) 
-
-Returns an array of functions, that correspond to the resolvers.
-
-**Parameters**
-
-**fn**: , Returns an array of functions, that correspond to the resolvers.
-
-**args**: , Returns an array of functions, that correspond to the resolvers.
-
-**Returns**: , [function(ctx)];
-
-
 ## Class: Injector
 
 
@@ -30,7 +17,7 @@ Aliases a string to a function resolver.
 
 **name**: `String`, Aliases a string to a function resolver.
 
-**val**: `function | String`, Aliases a string to a function resolver.
+**val**: `Resolver | String`, Aliases a string to a function resolver.
 
 **Returns**: `Injector`
 
@@ -91,7 +78,7 @@ Same as resolve except returns a bound function.
 
 **scope**: `Object`, Same as resolve except returns a bound function.
 
-**Returns**: `function`
+**Returns**: `CtxFunction`
 
 ### Injector.resolveBindCB(fn, scope) 
 
@@ -103,21 +90,58 @@ Same as resolveBind except uses a callback.
 
 **scope**: `Object`, Same as resolveBind except uses a callback.
 
-**Returns**: `function`
+**Returns**: `CtxFunction`
 
 ### Injector.invoke(obj, str, ctx, advice) 
 
+Invokes a method, with its parameters in injected.
+
 **Parameters**
 
-**obj**: `Object`
+**obj**: `Object`, Invokes a method, with its parameters in injected.
 
-**str**: `PathString`
+**str**: `PathString`, Invokes a method, with its parameters in injected.
 
-**ctx**: `Context`
+**ctx**: `Context`, Invokes a method, with its parameters in injected.
 
-**advice**: `Advice`
+**advice**: `Advice`, Invokes a method, with its parameters in injected.
 
 **Returns**: `Promise`
+
+**Example**:
+```js
+var obj = {
+  a:{
+    junk:function(query$name){
+      return 'Junk '+query$name;
+    }
+  }
+}
+
+nojector.invoke(obj, 'a/junk', {req:{query:{name:'stuff'}}}).then(function(val){
+  //val is Junk stuff
+}, function(e){
+ //error
+})
+```
+
+### Injector.invokeCB(cb, obj, str, ctx, advice) 
+
+Same as invoke, but uses a callback instead of promise.
+
+**Parameters**
+
+**cb**: `Callback`, Same as invoke, but uses a callback instead of promise.
+
+**obj**: `Object`, Same as invoke, but uses a callback instead of promise.
+
+**str**: `PathString`, Same as invoke, but uses a callback instead of promise.
+
+**ctx**: `Context`, Same as invoke, but uses a callback instead of promise.
+
+**advice**: `Advice`, Same as invoke, but uses a callback instead of promise.
+
+**Returns**: , undefined
 
 ### Injector.stringify(obj, ctx) 
 
@@ -126,13 +150,48 @@ into an serializable object graph.
 
 **Parameters**
 
-**obj**: , Returns a promise.  Use this to convert a graph with functions,
-into an serializable object graph.
+**obj**: `Object`, to stringify
 
-**ctx**: , Returns a promise.  Use this to convert a graph with functions,
-into an serializable object graph.
+**ctx**: `Context`, to stringify said object in.
 
-**Returns**: `MPromise`
+**Returns**: `Promise.&lt;Object&gt;`
+
+**Example**:
+```js
+invoker.stringify({
+               a: {
+                   stuff: function (query$abc) {
+                       return query$abc;
+                   },
+                   prom: function () {
+                       var p = promise();
+                       setTimeout(p.resolve.bind(p, null, {
+                           a: function (query$abc) {
+                               var a = {};
+                               a[query$abc] = 'd';
+                               return a;
+                           },
+                           b: 'b'
+
+                       }), 100);
+                       return p;
+                   }
+               }
+           }, {
+               req: {
+                   query: {
+                       abc: 'def'
+                   }
+               }
+           }).then(function (res) {
+               //   res = JSON.parse(res);
+               res.should.have.property('a');
+
+               //res.a.should.have.property('stuff', 'def');
+
+               res.a.should.have.property('prom');
+           });
+```
 
 
 
