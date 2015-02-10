@@ -183,40 +183,8 @@ describe('inject', function () {
                 assert.strictEqual(args[1].junk, 1, "resolved module.junk ");
             });
         });
-        it('should resolve a function that returns a function', function () {
-            var ctx = {
-                req: {
-                    query: {a: 1},
-                    session: {a: 3, b: 2},
-                    body: {a: 3, du: 3, b: 2}
-                }
-            };
-            return invoker.resolve(function (query$a) {
-                return function (session$b, session$a) {
-                    return query$a + ' ' + session$b + ' ' + session$a;
-                }
-            }, null, ctx).then(function (ret) {
-                ret.should.be.eql('1 2 3');
-            })
 
-        });
-        it('should resolve a function that returns a promise', function () {
-            var ctx = {
-                req: {
-                    query: {a: 1},
-                    session: {a: 3, b: 2},
-                    body: {a: 3, du: 3, b: 2}
-                }
-            };
-            return invoker.resolve(function (query$a) {
-                var p = promise();
-                setTimeout(p.resolve.bind(p, null, query$a), 100);
-                return p;
-            }, null, ctx).then(function (ret) {
-                ret.should.be.eql(1);
-            })
 
-        });
         it('should resolve arguments', function () {
             // this.timeout(400000);
             var scope = {
