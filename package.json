@@ -4,7 +4,8 @@
   "description": "Node Parameter Injection",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./tests"
+    "test": "mocha ./tests",
+    "docs": "jsdoc -r ./Readme.md ./lib/*"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "body-parser": "^1.10.2",
     "express": "^4.11.1",
+    "jsdoc": "^3.3.0-beta1",
     "mocha": "^2.1.0",
     "should": "^4.5.0",
     "superagent": "^0.21.0"
